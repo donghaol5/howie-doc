@@ -1,0 +1,47 @@
+---
+layout: post-index
+permalink: /tags/
+title: Group by tag
+description: "An archive of posts sorted by tag."
+image:
+  feature: abstract-11.jpg
+  credit: dargadgetz
+  creditlink: http://www.dargadgetz.com/ios-7-abstract-wallpaper-pack-for-iphone-5-and-ipod-touch-retina/
+---
+
+<ul class="entry-meta inline-list">
+{% assign tags_list = site.tags %}  
+  {% if tags_list.first[0] == null %}
+    {% for tag in tags_list %} 
+    	<li><a href="#{{ tag }}" class="tag">{{ tag }} <span>{{ site.tags[tag].size }}</span></a></li>
+    {% endfor %}
+  {% else %}
+    {% for tag in tags_list %} 
+    	<li><a href="#{{ tag[0] }}" class="tag">{{ tag[0] }} <span>{{ tag[1].size }}</span></a></li>
+    {% endfor %}
+  {% endif %}
+{% assign tags_list = nil %}
+</ul>
+
+{% for tag in site.tags %} 
+	<article>
+	<h2 id="{{ tag[0] }}" style="color: #bdd0db">{{ tag[0] }}</h2>
+		<ul>
+		{% assign pages_list = tag[1] %}  
+		{% for post in pages_list %}
+			{% if post.title != null %}
+			{% if group == null or group == post.group %}
+	        <li style="margin-top:10px; list-style-type:none">
+<!-- 	          <span style="color: #bdd0db; margin-right:50px">{{post.date | date:"%Y年%m月%d日"}}</span>
+ -->	          <a href="{{ site.url }}{{ post.url }}" title="{{ post.title }}" style="color: #3594cb;font-weight:bold">
+	             {{ post.title }}
+	          </a>
+        	</li>
+			{% endif %}
+			{% endif %}
+		{% endfor %}
+		{% assign pages_list = nil %}
+		{% assign group = nil %}
+		</ul>
+	</article><!-- /.hentry -->
+{% endfor %}
