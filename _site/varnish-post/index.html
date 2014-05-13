@@ -132,47 +132,75 @@
 
 <h3 id="c">语法与c语言类似</h3>
 
-<pre><code>1.以大括号界定代码块,以分号结束语句
-2.赋值 (=), 比较 (==, !=)  bool表达式 (!, &amp;&amp; and \|\|) 等等都与C语言类似
-3.基本字符串: "..." 不支持换行
-4.长字符串: {"..."} 支持新行 和除了 NULL 以外的一些控制字符
-5.不同于c的是反斜杠在vcl中没有转义的意思
-6.字符串连接用'+'号
-7.常用关键字：
-  1.set：赋值使用set关键字，比如 set req.backend = foo ，在varnish中没有用户自定义变量，
-    只能对 backend, request or document objects
-  2.unset：删除变量值
-  3.panic：给客户端发出警告信息
-  4.rollback：回滚变量
-  5.synthetic：在vcl_error中生成一个response body
-  6.return：返回一个action return(action)
-</code></pre>
+<blockquote>
+  <ol>
+    <li>以大括号界定代码块,以分号结束语句</li>
+    <li>赋值 (=), 比较 (==, !=)  bool表达式 (!, &amp;&amp; and ||) 等等都与C语言类似</li>
+    <li>基本字符串: “…” 不支持换行</li>
+    <li>长字符串: {“…”} 支持新行 和除了 NULL 以外的一些控制字符</li>
+    <li>不同于c的是反斜杠在vcl中没有转义的意思</li>
+    <li>字符串连接用’+’号</li>
+    <li>常用关键字：
+      <ol>
+        <li>set：赋值使用set关键字，比如 set req.backend = foo ，在varnish中没有用户自定义变量，
+ 只能对 backend, request or document objects</li>
+        <li>unset：删除变量值</li>
+        <li>panic：给客户端发出警告信息</li>
+        <li>rollback：回滚变量</li>
+        <li>synthetic：在vcl_error中生成一个response body</li>
+        <li>return：返回一个action return(action)</li>
+      </ol>
+    </li>
+  </ol>
+</blockquote>
 
 <h3 id="action">action列表</h3>
 
-<ul>
-  <li>deliver</li>
-  <li>error</li>
-  <li>fetch</li>
-  <li>hash</li>
-  <li>hit_for_pass</li>
-  <li>lookup</li>
-  <li>ok</li>
-  <li>pass</li>
-  <li>pipe</li>
-  <li>restart</li>
-</ul>
+<blockquote>
+  <ul>
+    <li>deliver</li>
+    <li>error</li>
+    <li>fetch</li>
+    <li>hash</li>
+    <li>hit_for_pass</li>
+    <li>lookup</li>
+    <li>ok</li>
+    <li>pass</li>
+    <li>pipe</li>
+    <li>restart</li>
+  </ul>
+</blockquote>
 
 <h3 id="backend">backend</h3>
 <p>首先需要定义一个backend</p>
 
 <div class="highlight"><pre><code class="css"><span class="lineno">1</span> <span class="nt">backend</span> <span class="nt">www</span> <span class="p">{</span>
 <span class="lineno">2</span>   <span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;www.example.com&quot;</span><span class="p">;</span>
-<span class="lineno">3</span>   <span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="s2">&quot;http&quot;</span><span class="p">;</span>
+<span class="lineno">3</span>   <span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="s2">&quot;80&quot;</span><span class="p">;</span>
 <span class="lineno">4</span>   <span class="o">.</span><span class="n">connect_timeout</span> <span class="o">=</span> <span class="m">1s</span><span class="p">;</span>
 <span class="lineno">5</span>   <span class="o">.</span><span class="n">first_byte_timeout</span> <span class="o">=</span> <span class="m">5s</span><span class="p">;</span>
 <span class="lineno">6</span>   <span class="o">.</span><span class="n">between_bytes_timeout</span> <span class="o">=</span> <span class="m">2s</span><span class="p">;</span>
 <span class="lineno">7</span> <span class="p">}</span></code></pre></div>
+
+<h3 id="director">健康检查 director</h3>
+<p>director 的作用是让varnish从后端服务器中选择可用的没有宕机的服务器，将请求打到健康的服务器上。varnish提供了多种检测的机制，每一种机制
+都用不同的算法来实现如何寻找可用的后端服务器，下面是一个最基本的健康检查配置：</p>
+
+<div class="highlight"><pre><code class="python"><span class="lineno"> 1</span> <span class="n">director</span> <span class="n">b2</span> <span class="n">random</span> <span class="p">{</span>
+<span class="lineno"> 2</span>   <span class="o">.</span><span class="n">retries</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="lineno"> 3</span>   <span class="p">{</span>
+<span class="lineno"> 4</span>     <span class="o">//</span> <span class="n">We</span> <span class="n">can</span> <span class="n">refer</span> <span class="n">to</span> <span class="n">named</span> <span class="n">backends</span>
+<span class="lineno"> 5</span>     <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">b1</span><span class="p">;</span>
+<span class="lineno"> 6</span>     <span class="o">.</span><span class="n">weight</span>  <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+<span class="lineno"> 7</span>   <span class="p">}</span>
+<span class="lineno"> 8</span>   <span class="p">{</span>
+<span class="lineno"> 9</span>     <span class="o">//</span> <span class="n">Or</span> <span class="n">define</span> <span class="n">them</span> <span class="n">inline</span>
+<span class="lineno">10</span>     <span class="o">.</span><span class="n">backend</span>  <span class="o">=</span> <span class="p">{</span>
+<span class="lineno">11</span>       <span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s">&quot;fs2&quot;</span><span class="p">;</span>
+<span class="lineno">12</span>     <span class="p">}</span>
+<span class="lineno">13</span>   <span class="o">.</span><span class="n">weight</span>         <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="lineno">14</span>   <span class="p">}</span>
+<span class="lineno">15</span> <span class="p">}</span></code></pre></div>
 
 
       <footer class="entry-meta">

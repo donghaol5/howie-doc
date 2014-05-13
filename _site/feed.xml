@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml" />
 <link rel="alternate" type="text/html" href="http://localhost:4000" />
-<updated>2014-05-13T17:19:08+08:00</updated>
+<updated>2014-05-13T18:28:14+08:00</updated>
 <id>http://localhost:4000/</id>
 <author>
   <name>董昊</name>
@@ -37,47 +37,75 @@
 
 &lt;h3 id=&quot;c&quot;&gt;语法与c语言类似&lt;/h3&gt;
 
-&lt;pre&gt;&lt;code&gt;1.以大括号界定代码块,以分号结束语句
-2.赋值 (=), 比较 (==, !=)  bool表达式 (!, &amp;amp;&amp;amp; and \|\|) 等等都与C语言类似
-3.基本字符串: &quot;...&quot; 不支持换行
-4.长字符串: {&quot;...&quot;} 支持新行 和除了 NULL 以外的一些控制字符
-5.不同于c的是反斜杠在vcl中没有转义的意思
-6.字符串连接用&#39;+&#39;号
-7.常用关键字：
-  1.set：赋值使用set关键字，比如 set req.backend = foo ，在varnish中没有用户自定义变量，
-    只能对 backend, request or document objects
-  2.unset：删除变量值
-  3.panic：给客户端发出警告信息
-  4.rollback：回滚变量
-  5.synthetic：在vcl_error中生成一个response body
-  6.return：返回一个action return(action)
-&lt;/code&gt;&lt;/pre&gt;
+&lt;blockquote&gt;
+  &lt;ol&gt;
+    &lt;li&gt;以大括号界定代码块,以分号结束语句&lt;/li&gt;
+    &lt;li&gt;赋值 (=), 比较 (==, !=)  bool表达式 (!, &amp;amp;&amp;amp; and ||) 等等都与C语言类似&lt;/li&gt;
+    &lt;li&gt;基本字符串: “…” 不支持换行&lt;/li&gt;
+    &lt;li&gt;长字符串: {“…”} 支持新行 和除了 NULL 以外的一些控制字符&lt;/li&gt;
+    &lt;li&gt;不同于c的是反斜杠在vcl中没有转义的意思&lt;/li&gt;
+    &lt;li&gt;字符串连接用’+’号&lt;/li&gt;
+    &lt;li&gt;常用关键字：
+      &lt;ol&gt;
+        &lt;li&gt;set：赋值使用set关键字，比如 set req.backend = foo ，在varnish中没有用户自定义变量，
+ 只能对 backend, request or document objects&lt;/li&gt;
+        &lt;li&gt;unset：删除变量值&lt;/li&gt;
+        &lt;li&gt;panic：给客户端发出警告信息&lt;/li&gt;
+        &lt;li&gt;rollback：回滚变量&lt;/li&gt;
+        &lt;li&gt;synthetic：在vcl_error中生成一个response body&lt;/li&gt;
+        &lt;li&gt;return：返回一个action return(action)&lt;/li&gt;
+      &lt;/ol&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
 
 &lt;h3 id=&quot;action&quot;&gt;action列表&lt;/h3&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;deliver&lt;/li&gt;
-  &lt;li&gt;error&lt;/li&gt;
-  &lt;li&gt;fetch&lt;/li&gt;
-  &lt;li&gt;hash&lt;/li&gt;
-  &lt;li&gt;hit_for_pass&lt;/li&gt;
-  &lt;li&gt;lookup&lt;/li&gt;
-  &lt;li&gt;ok&lt;/li&gt;
-  &lt;li&gt;pass&lt;/li&gt;
-  &lt;li&gt;pipe&lt;/li&gt;
-  &lt;li&gt;restart&lt;/li&gt;
-&lt;/ul&gt;
+&lt;blockquote&gt;
+  &lt;ul&gt;
+    &lt;li&gt;deliver&lt;/li&gt;
+    &lt;li&gt;error&lt;/li&gt;
+    &lt;li&gt;fetch&lt;/li&gt;
+    &lt;li&gt;hash&lt;/li&gt;
+    &lt;li&gt;hit_for_pass&lt;/li&gt;
+    &lt;li&gt;lookup&lt;/li&gt;
+    &lt;li&gt;ok&lt;/li&gt;
+    &lt;li&gt;pass&lt;/li&gt;
+    &lt;li&gt;pipe&lt;/li&gt;
+    &lt;li&gt;restart&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
 
 &lt;h3 id=&quot;backend&quot;&gt;backend&lt;/h3&gt;
 &lt;p&gt;首先需要定义一个backend&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;css&quot;&gt;&lt;span class=&quot;lineno&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;backend&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;www&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
 &lt;span class=&quot;lineno&quot;&gt;2&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;www.example.com&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;lineno&quot;&gt;3&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;port&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;http&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;3&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;port&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;80&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;lineno&quot;&gt;4&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connect_timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;lineno&quot;&gt;5&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first_byte_timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;5s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;lineno&quot;&gt;6&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;between_bytes_timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;2s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;lineno&quot;&gt;7&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;director&quot;&gt;健康检查 director&lt;/h3&gt;
+&lt;p&gt;director 的作用是让varnish从后端服务器中选择可用的没有宕机的服务器，将请求打到健康的服务器上。varnish提供了多种检测的机制，每一种机制
+都用不同的算法来实现如何寻找可用的后端服务器，下面是一个最基本的健康检查配置：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;lineno&quot;&gt; 1&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;director&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b2&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;random&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 2&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;retries&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 3&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 4&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;We&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;can&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;refer&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;named&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;backends&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 5&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;backend&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 6&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;weight&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 7&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 8&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt; 9&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Or&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;define&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;them&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inline&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;10&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;backend&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;11&lt;/span&gt;       &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;fs2&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;12&lt;/span&gt;     &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;13&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;weight&lt;/span&gt;         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;14&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;15&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
   &lt;p&gt;&lt;a href=&quot;http://localhost:4000/varnish-post/&quot;&gt;varnish&lt;/a&gt; was originally published by 董昊 at &lt;a href=&quot;http://localhost:4000&quot;&gt;My Technical Documentation&lt;/a&gt; on May 13, 2014.&lt;/p&gt;</content>
