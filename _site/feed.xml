@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml" />
 <link rel="alternate" type="text/html" href="http://localhost:4000" />
-<updated>2014-05-13T11:27:43+08:00</updated>
+<updated>2014-05-13T17:19:08+08:00</updated>
 <id>http://localhost:4000/</id>
 <author>
   <name>董昊</name>
@@ -25,10 +25,59 @@
     <uri>http://localhost:4000</uri>
     <email>donghao@youku.com</email>
   </author>
-  <content type="html">&lt;h3 id=&quot;varnish-&quot;&gt;(一) varnish 请求处理流程图&lt;/h3&gt;
+  <content type="html">&lt;p&gt;varnish是一个http反向代理服务，可以用作http或web加速器，把文件或请求结果存到内存。从本质上说它可以认为是一个key/value存储系统，以url做key.&lt;/p&gt;
+
+&lt;h3 id=&quot;varnish-&quot;&gt;(一) varnish 请求处理流程图&lt;/h3&gt;
 &lt;figure&gt;
-	&lt;img src=&quot;/images/varnish_overview.jpg&quot; alt=&quot;&quot; /&gt;
+	&lt;img src=&quot;http://localhost:4000/images/varnish_overview.jpg&quot; alt=&quot;&quot; /&gt;
 &lt;/figure&gt;
+
+&lt;h3 id=&quot;vcl&quot;&gt;(二) VCL配置语言&lt;/h3&gt;
+&lt;p&gt;    vcl语言是专用于varnish配置的一门简单语言。当vcl被load的时候，会被转化为c语言一起编译为共享object，在varnish进程运行时被动态链接。&lt;/p&gt;
+
+&lt;h3 id=&quot;c&quot;&gt;语法与c语言类似&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;1.以大括号界定代码块,以分号结束语句
+2.赋值 (=), 比较 (==, !=)  bool表达式 (!, &amp;amp;&amp;amp; and \|\|) 等等都与C语言类似
+3.基本字符串: &quot;...&quot; 不支持换行
+4.长字符串: {&quot;...&quot;} 支持新行 和除了 NULL 以外的一些控制字符
+5.不同于c的是反斜杠在vcl中没有转义的意思
+6.字符串连接用&#39;+&#39;号
+7.常用关键字：
+  1.set：赋值使用set关键字，比如 set req.backend = foo ，在varnish中没有用户自定义变量，
+    只能对 backend, request or document objects
+  2.unset：删除变量值
+  3.panic：给客户端发出警告信息
+  4.rollback：回滚变量
+  5.synthetic：在vcl_error中生成一个response body
+  6.return：返回一个action return(action)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;action&quot;&gt;action列表&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;deliver&lt;/li&gt;
+  &lt;li&gt;error&lt;/li&gt;
+  &lt;li&gt;fetch&lt;/li&gt;
+  &lt;li&gt;hash&lt;/li&gt;
+  &lt;li&gt;hit_for_pass&lt;/li&gt;
+  &lt;li&gt;lookup&lt;/li&gt;
+  &lt;li&gt;ok&lt;/li&gt;
+  &lt;li&gt;pass&lt;/li&gt;
+  &lt;li&gt;pipe&lt;/li&gt;
+  &lt;li&gt;restart&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;backend&quot;&gt;backend&lt;/h3&gt;
+&lt;p&gt;首先需要定义一个backend&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;css&quot;&gt;&lt;span class=&quot;lineno&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;backend&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;www&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;2&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;www.example.com&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;3&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;port&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;http&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;4&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connect_timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;5&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first_byte_timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;5s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;6&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;between_bytes_timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;2s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;lineno&quot;&gt;7&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
   &lt;p&gt;&lt;a href=&quot;http://localhost:4000/varnish-post/&quot;&gt;varnish&lt;/a&gt; was originally published by 董昊 at &lt;a href=&quot;http://localhost:4000&quot;&gt;My Technical Documentation&lt;/a&gt; on May 13, 2014.&lt;/p&gt;</content>

@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <title>varnish &#8211; My Technical Documentation</title>
 <meta name="description" content="varnish 学习记录">
-<meta name="keywords" content="unix">
+<meta name="keywords" content="varnish, web">
 
 
 
@@ -120,14 +120,63 @@
       </div><!-- /.header-title-wrap -->
     </header>
     <div class="entry-content">
-      <h3 id="varnish-">(一) varnish 请求处理流程图</h3>
+      <p>varnish是一个http反向代理服务，可以用作http或web加速器，把文件或请求结果存到内存。从本质上说它可以认为是一个key/value存储系统，以url做key.</p>
+
+<h3 id="varnish-">(一) varnish 请求处理流程图</h3>
 <figure>
-	<img src="/images/varnish_overview.jpg" alt="" />
+	<img src="http://localhost:4000/images/varnish_overview.jpg" alt="" />
 </figure>
+
+<h3 id="vcl">(二) VCL配置语言</h3>
+<p>    vcl语言是专用于varnish配置的一门简单语言。当vcl被load的时候，会被转化为c语言一起编译为共享object，在varnish进程运行时被动态链接。</p>
+
+<h3 id="c">语法与c语言类似</h3>
+
+<pre><code>1.以大括号界定代码块,以分号结束语句
+2.赋值 (=), 比较 (==, !=)  bool表达式 (!, &amp;&amp; and \|\|) 等等都与C语言类似
+3.基本字符串: "..." 不支持换行
+4.长字符串: {"..."} 支持新行 和除了 NULL 以外的一些控制字符
+5.不同于c的是反斜杠在vcl中没有转义的意思
+6.字符串连接用'+'号
+7.常用关键字：
+  1.set：赋值使用set关键字，比如 set req.backend = foo ，在varnish中没有用户自定义变量，
+    只能对 backend, request or document objects
+  2.unset：删除变量值
+  3.panic：给客户端发出警告信息
+  4.rollback：回滚变量
+  5.synthetic：在vcl_error中生成一个response body
+  6.return：返回一个action return(action)
+</code></pre>
+
+<h3 id="action">action列表</h3>
+
+<ul>
+  <li>deliver</li>
+  <li>error</li>
+  <li>fetch</li>
+  <li>hash</li>
+  <li>hit_for_pass</li>
+  <li>lookup</li>
+  <li>ok</li>
+  <li>pass</li>
+  <li>pipe</li>
+  <li>restart</li>
+</ul>
+
+<h3 id="backend">backend</h3>
+<p>首先需要定义一个backend</p>
+
+<div class="highlight"><pre><code class="css"><span class="lineno">1</span> <span class="nt">backend</span> <span class="nt">www</span> <span class="p">{</span>
+<span class="lineno">2</span>   <span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;www.example.com&quot;</span><span class="p">;</span>
+<span class="lineno">3</span>   <span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="s2">&quot;http&quot;</span><span class="p">;</span>
+<span class="lineno">4</span>   <span class="o">.</span><span class="n">connect_timeout</span> <span class="o">=</span> <span class="m">1s</span><span class="p">;</span>
+<span class="lineno">5</span>   <span class="o">.</span><span class="n">first_byte_timeout</span> <span class="o">=</span> <span class="m">5s</span><span class="p">;</span>
+<span class="lineno">6</span>   <span class="o">.</span><span class="n">between_bytes_timeout</span> <span class="o">=</span> <span class="m">2s</span><span class="p">;</span>
+<span class="lineno">7</span> <span class="p">}</span></code></pre></div>
 
 
       <footer class="entry-meta">
-        <span class="entry-tags"><a href="http://localhost:4000/tags/#unix" title="Pages tagged unix" class="tag">unix</a></span>
+        <span class="entry-tags"><a href="http://localhost:4000/tags/#varnish" title="Pages tagged varnish" class="tag">varnish</a><a href="http://localhost:4000/tags/#web" title="Pages tagged web" class="tag">web</a></span>
         <span><a href="http://localhost:4000/varnish-post/" rel="bookmark" title="varnish">varnish</a> was published on <span class="entry-date date published updated"><time datetime="2014-05-13T00:00:00+08:00">May 13, 2014</time></span></span>
         (revised: <span class="entry-date date modified"><time datetime="2014-05-11">05/11/2014</time></span>)
         <span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About 董昊">董昊</a></span></span>
