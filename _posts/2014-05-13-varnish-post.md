@@ -3,7 +3,7 @@ layout: post
 title: varnish
 description: "varnish 学习记录"
 modified: 2014-05-11
-tags: [unix]
+tags: [varnish,web]
 comments: true
 share: true  
 ---
