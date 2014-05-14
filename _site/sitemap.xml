@@ -40,6 +40,10 @@
 
     
     <url>
+        <loc>http://localhost:4000/websocket-post/</loc>
+    </url>
+    
+    <url>
         <loc>http://localhost:4000/varnish-post/</loc>
     </url>
     

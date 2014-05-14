@@ -12,14 +12,3 @@ share: true
 	<img src="/images/varnish_overview.jpg" alt="">
 	<!-- <figcaption>Caption describing these two images.</figcaption> -->
 </figure>
-
-
-
-Caption describing these two images.Caption describing these two images.
-Caption describing these two images.
-Caption describing these two images.
-Caption describing these two images.
-Caption describing these two images.
-Caption describing these two images.
-Caption describing these two images.Caption describing these two images.
-Caption describing these two images.

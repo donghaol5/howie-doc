@@ -182,9 +182,9 @@
 <span class="lineno">6</span>   <span class="o">.</span><span class="n">between_bytes_timeout</span> <span class="o">=</span> <span class="m">2s</span><span class="p">;</span>
 <span class="lineno">7</span> <span class="p">}</span></code></pre></div>
 
-<h3 id="director">健康检查 director</h3>
-<p>director 的作用是让varnish从后端服务器中选择可用的没有宕机的服务器，将请求打到健康的服务器上。varnish提供了多种检测的机制，每一种机制
-都用不同的算法来实现如何寻找可用的后端服务器，下面是一个最基本的健康检查配置：</p>
+<h3 id="director">director</h3>
+<p>director 是一组后端服务器的集合，作用是让varnish从后端服务器中选择可用的的服务器，将请求打到健康的服务器上。varnish提供了多种director的机制，每一种机制
+都用不同的算法来实现如何寻找可用的后端服务器，下面是一个random director的配置：</p>
 
 <div class="highlight"><pre><code class="python"><span class="lineno"> 1</span> <span class="n">director</span> <span class="n">b2</span> <span class="n">random</span> <span class="p">{</span>
 <span class="lineno"> 2</span>   <span class="o">.</span><span class="n">retries</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
@@ -201,6 +201,261 @@
 <span class="lineno">13</span>   <span class="o">.</span><span class="n">weight</span>         <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
 <span class="lineno">14</span>   <span class="p">}</span>
 <span class="lineno">15</span> <span class="p">}</span></code></pre></div>
+
+<h3 id="director-1">四种director机制：</h3>
+
+<blockquote>
+  <p>The family of random directors 三种方式都是通过随机来实现，可以调节权重：</p>
+</blockquote>
+
+<pre><code>1. The random director：根据一个随机数做种子从后端服务器中选择
+2. The client director：根据client身份从后端服务器中选择
+3. The hash director：根据url hash值从后端服务器选择
+</code></pre>
+
+<blockquote>
+  <p>The round-robin director：根据请求的顺序分配后端服务器，第一个请求给第一个后端服务器，第二个请求给第二个后端服务器。
+如果一个后端服务器不可用或者varnish链接它失败，那么这个不可用的服务器会直接被跳过。在放弃之前，会尝试连接所有后端服务器</p>
+</blockquote>
+
+<div class="highlight"><pre><code class="python"><span class="lineno"> 1</span> <span class="o">...</span>
+<span class="lineno"> 2</span> <span class="n">backend</span> <span class="n">api_server8</span> <span class="p">{</span>
+<span class="lineno"> 3</span>     <span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s">&quot;10.105.28.144&quot;</span><span class="p">;</span>
+<span class="lineno"> 4</span>     <span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="s">&quot;80&quot;</span><span class="p">;</span>
+<span class="lineno"> 5</span>     <span class="o">.</span><span class="n">connect_timeout</span> <span class="o">=</span> <span class="mi">3</span><span class="n">s</span><span class="p">;</span>
+<span class="lineno"> 6</span>     <span class="o">.</span><span class="n">first_byte_timeout</span> <span class="o">=</span> <span class="mi">3</span><span class="n">s</span><span class="p">;</span>
+<span class="lineno"> 7</span>     <span class="o">.</span><span class="n">between_bytes_timeout</span> <span class="o">=</span> <span class="mi">3</span><span class="n">s</span><span class="p">;</span>
+<span class="lineno"> 8</span>     <span class="o">.</span><span class="n">probe</span> <span class="o">=</span> <span class="n">healthcheck</span><span class="p">;</span>
+<span class="lineno"> 9</span> <span class="p">}</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span> 
+<span class="lineno">12</span> <span class="n">director</span> <span class="n">default</span> <span class="nb">round</span><span class="o">-</span><span class="n">robin</span> <span class="p">{</span>
+<span class="lineno">13</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">api_server1</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">14</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">api_server2</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">15</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">api_server3</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">16</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">api_server4</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">17</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">api_server5</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">18</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">api_server6</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">19</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">api_server7</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">20</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">api_server8</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">21</span> <span class="p">}</span></code></pre></div>
+
+<blockquote>
+  <p>DNS director </p>
+</blockquote>
+
+<div class="highlight"><pre><code class="python"><span class="lineno"> 1</span> <span class="n">director</span> <span class="n">directorname</span> <span class="n">dns</span> <span class="p">{</span>
+<span class="lineno"> 2</span>         <span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="p">{</span>
+<span class="lineno"> 3</span>                 <span class="o">.</span><span class="n">host_header</span> <span class="o">=</span> <span class="s">&quot;www.example.com&quot;</span><span class="p">;</span>
+<span class="lineno"> 4</span>                 <span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="s">&quot;80&quot;</span><span class="p">;</span>
+<span class="lineno"> 5</span>                 <span class="o">.</span><span class="n">connect_timeout</span> <span class="o">=</span> <span class="mf">0.4</span><span class="n">s</span><span class="p">;</span>
+<span class="lineno"> 6</span>                 <span class="s">&quot;192.168.15.0&quot;</span><span class="o">/</span><span class="mi">24</span><span class="p">;</span>
+<span class="lineno"> 7</span>                 <span class="s">&quot;192.168.16.128&quot;</span><span class="o">/</span><span class="mi">25</span><span class="p">;</span>
+<span class="lineno"> 8</span>         <span class="p">}</span>
+<span class="lineno"> 9</span>         <span class="o">.</span><span class="n">ttl</span> <span class="o">=</span> <span class="mi">5</span><span class="n">m</span><span class="p">;</span>
+<span class="lineno">10</span>         <span class="o">.</span><span class="n">suffix</span> <span class="o">=</span> <span class="s">&quot;internal.example.net&quot;</span><span class="p">;</span>
+<span class="lineno">11</span> <span class="p">}</span></code></pre></div>
+
+<p>上例中指定了384个后端服务器，所有的都是使用的80端口，连接超时时间是0.4s。所有在.list语句里的的选项必须定义在ip列表之前。.list方法不支持IPv6。它不是一个白名单，它只是一个在varnish内部创建的实际的后端服务器列表。定义的子网越大开销越大 .ttl定义DNS查询的缓存时间。
+.suffix表示把其后面的值，追加到客户端提供的Host Header中。此director不支持健康检测。支持DNS轮询负载均衡。如果主机名解析后对应多个后端服务器，那么这director将以轮询的方式分派流量。</p>
+
+<blockquote>
+  <p>The fallback director: 选择第一个可用的后端服务器。它是以服务器定义的顺序依次进行选择的。如果第一个服务器可用，它不会再去尝试连接第二个服务器，除非第一个服务器不可用了</p>
+</blockquote>
+
+<div class="highlight"><pre><code class="python"><span class="lineno">1</span> <span class="n">director</span> <span class="n">b3</span> <span class="n">fallback</span> <span class="p">{</span>
+<span class="lineno">2</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">www1</span><span class="p">;</span> <span class="p">}</span>
+<span class="lineno">3</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">www2</span><span class="p">;</span> <span class="p">}</span> <span class="o">//</span> <span class="n">will</span> <span class="n">only</span> <span class="n">be</span> <span class="n">used</span> <span class="k">if</span> <span class="n">www1</span> <span class="ow">is</span> <span class="n">unhealthy</span><span class="o">.</span>
+<span class="lineno">4</span>     <span class="p">{</span> <span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">www3</span><span class="p">;</span> <span class="p">}</span> <span class="o">//</span> <span class="n">will</span> <span class="n">only</span> <span class="n">be</span> <span class="n">used</span> <span class="k">if</span> <span class="n">both</span> <span class="n">www1</span> <span class="ow">and</span> <span class="n">www2</span>
+<span class="lineno">5</span>                        <span class="o">//</span> <span class="n">are</span> <span class="n">unhealthy</span><span class="o">.</span>
+<span class="lineno">6</span>  <span class="p">}</span></code></pre></div>
+
+<h3 id="backend-probes">Backend probes</h3>
+
+<p>后端服务器可以通过req.backend.healthy变量返回的探测状态来判断是否可用。</p>
+
+<blockquote>
+  <p>探测器可以跟的参数有：</p>
+</blockquote>
+
+<ul>
+  <li>.url 表示指定一个发送到后端服务器的URL请求，默认值是“/”。</li>
+  <li>.request 表示指定一个完整的多字符串的HTTP请求，每个字符串后面都会自动的插入\r\n 回车换行符。它的优先级比.url高。</li>
+  <li>.window 表示我们要检查确定后端服务器的可用性，所要进行探测的次数。默认是8次。</li>
+  <li>.threshold 表示在选项.window中，要成功的探测多少次我们才认为后端服务器可用。默认是3次。</li>
+  <li>.initial 表示当varnish启动的时候，要探测多少次后则认为服务器可用。默认值和选项.threshold的值的相同。</li>
+  <li>.expected_response 表示你期望后端所返回的HTTP响应代码。默认是200</li>
+  <li>.interval 表示每隔多少秒探测一次。默认是每5秒探测一次。</li>
+  <li>.timeout 表示每次探测所使用的时间，如果超过设定的时间，就表示此次才探测超时，也就表示此次探测失败。默认是2秒。</li>
+</ul>
+
+<div class="highlight"><pre><code class="python"><span class="lineno"> 1</span> <span class="n">probe</span> <span class="n">healthcheck</span> <span class="p">{</span>
+<span class="lineno"> 2</span>    <span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s">&quot;/status.cgi&quot;</span><span class="p">;</span>
+<span class="lineno"> 3</span>    <span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="mi">60</span><span class="n">s</span><span class="p">;</span>
+<span class="lineno"> 4</span>    <span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="n">s</span><span class="p">;</span>
+<span class="lineno"> 5</span>    <span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+<span class="lineno"> 6</span>    <span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="lineno"> 7</span>    <span class="o">.</span><span class="n">initial</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="lineno"> 8</span>    <span class="o">.</span><span class="n">expected_response</span> <span class="o">=</span> <span class="mi">200</span><span class="p">;</span>
+<span class="lineno"> 9</span> <span class="p">}</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span> <span class="n">backend</span> <span class="n">www</span> <span class="p">{</span>
+<span class="lineno">12</span>   <span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s">&quot;www.example.com&quot;</span><span class="p">;</span>
+<span class="lineno">13</span>   <span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="s">&quot;http&quot;</span><span class="p">;</span>
+<span class="lineno">14</span>   <span class="o">.</span><span class="n">probe</span> <span class="o">=</span> <span class="n">healthcheck</span><span class="p">;</span>
+<span class="lineno">15</span> <span class="p">}</span></code></pre></div>
+
+<h1 id="vcl-1">完整的vcl配置代码</h1>
+
+<div class="highlight"><pre><code class="python"><span class="lineno">  1</span> <span class="o">/*-</span>
+<span class="lineno">  2</span>  <span class="o">*</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2006</span> <span class="n">Verdens</span> <span class="n">Gang</span> <span class="n">AS</span>
+<span class="lineno">  3</span>  <span class="o">*</span> <span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2006</span><span class="o">-</span><span class="mi">2011</span> <span class="n">Varnish</span> <span class="n">Software</span> <span class="n">AS</span>
+<span class="lineno">  4</span>  <span class="o">*</span> <span class="n">All</span> <span class="n">rights</span> <span class="n">reserved</span><span class="o">.</span>
+<span class="lineno">  5</span>  <span class="o">*</span>
+<span class="lineno">  6</span>  <span class="o">*</span> <span class="n">Author</span><span class="p">:</span> <span class="n">Poul</span><span class="o">-</span><span class="n">Henning</span> <span class="n">Kamp</span> <span class="o">&lt;</span><span class="n">phk</span><span class="nd">@phk.freebsd.dk</span><span class="o">&gt;</span>
+<span class="lineno">  7</span>  <span class="o">*</span>
+<span class="lineno">  8</span>  <span class="o">*</span> <span class="n">Redistribution</span> <span class="ow">and</span> <span class="n">use</span> <span class="ow">in</span> <span class="n">source</span> <span class="ow">and</span> <span class="n">binary</span> <span class="n">forms</span><span class="p">,</span> <span class="k">with</span> <span class="ow">or</span> <span class="n">without</span>
+<span class="lineno">  9</span>  <span class="o">*</span> <span class="n">modification</span><span class="p">,</span> <span class="n">are</span> <span class="n">permitted</span> <span class="n">provided</span> <span class="n">that</span> <span class="n">the</span> <span class="n">following</span> <span class="n">conditions</span>
+<span class="lineno"> 10</span>  <span class="o">*</span> <span class="n">are</span> <span class="n">met</span><span class="p">:</span>
+<span class="lineno"> 11</span>  <span class="o">*</span> <span class="mf">1.</span> <span class="n">Redistributions</span> <span class="n">of</span> <span class="n">source</span> <span class="n">code</span> <span class="n">must</span> <span class="n">retain</span> <span class="n">the</span> <span class="n">above</span> <span class="n">copyright</span>
+<span class="lineno"> 12</span>  <span class="o">*</span>    <span class="n">notice</span><span class="p">,</span> <span class="n">this</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">conditions</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">following</span> <span class="n">disclaimer</span><span class="o">.</span>
+<span class="lineno"> 13</span>  <span class="o">*</span> <span class="mf">2.</span> <span class="n">Redistributions</span> <span class="ow">in</span> <span class="n">binary</span> <span class="n">form</span> <span class="n">must</span> <span class="n">reproduce</span> <span class="n">the</span> <span class="n">above</span> <span class="n">copyright</span>
+<span class="lineno"> 14</span>  <span class="o">*</span>    <span class="n">notice</span><span class="p">,</span> <span class="n">this</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">conditions</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">following</span> <span class="n">disclaimer</span> <span class="ow">in</span> <span class="n">the</span>
+<span class="lineno"> 15</span>  <span class="o">*</span>    <span class="n">documentation</span> <span class="ow">and</span><span class="o">/</span><span class="ow">or</span> <span class="n">other</span> <span class="n">materials</span> <span class="n">provided</span> <span class="k">with</span> <span class="n">the</span> <span class="n">distribution</span><span class="o">.</span>
+<span class="lineno"> 16</span>  <span class="o">*</span>
+<span class="lineno"> 17</span>  <span class="o">*</span> <span class="n">THIS</span> <span class="n">SOFTWARE</span> <span class="n">IS</span> <span class="n">PROVIDED</span> <span class="n">BY</span> <span class="n">THE</span> <span class="n">AUTHOR</span> <span class="n">AND</span> <span class="n">CONTRIBUTORS</span> <span class="sb">``</span><span class="n">AS</span> <span class="n">IS</span><span class="s">&#39;&#39;</span> <span class="n">AND</span>
+<span class="lineno"> 18</span>  <span class="o">*</span> <span class="n">ANY</span> <span class="n">EXPRESS</span> <span class="n">OR</span> <span class="n">IMPLIED</span> <span class="n">WARRANTIES</span><span class="p">,</span> <span class="n">INCLUDING</span><span class="p">,</span> <span class="n">BUT</span> <span class="n">NOT</span> <span class="n">LIMITED</span> <span class="n">TO</span><span class="p">,</span> <span class="n">THE</span>
+<span class="lineno"> 19</span>  <span class="o">*</span> <span class="n">IMPLIED</span> <span class="n">WARRANTIES</span> <span class="n">OF</span> <span class="n">MERCHANTABILITY</span> <span class="n">AND</span> <span class="n">FITNESS</span> <span class="n">FOR</span> <span class="n">A</span> <span class="n">PARTICULAR</span>
+<span class="lineno"> 20</span>  <span class="o">*</span> <span class="n">PURPOSE</span> <span class="n">ARE</span> <span class="n">DISCLAIMED</span><span class="o">.</span>  <span class="n">IN</span> <span class="n">NO</span> <span class="n">EVENT</span> <span class="n">SHALL</span> <span class="n">AUTHOR</span> <span class="n">OR</span> <span class="n">CONTRIBUTORS</span> <span class="n">BE</span>
+<span class="lineno"> 21</span>  <span class="o">*</span> <span class="n">LIABLE</span> <span class="n">FOR</span> <span class="n">ANY</span> <span class="n">DIRECT</span><span class="p">,</span> <span class="n">INDIRECT</span><span class="p">,</span> <span class="n">INCIDENTAL</span><span class="p">,</span> <span class="n">SPECIAL</span><span class="p">,</span> <span class="n">EXEMPLARY</span><span class="p">,</span> <span class="n">OR</span>
+<span class="lineno"> 22</span>  <span class="o">*</span> <span class="n">CONSEQUENTIAL</span> <span class="n">DAMAGES</span> <span class="p">(</span><span class="n">INCLUDING</span><span class="p">,</span> <span class="n">BUT</span> <span class="n">NOT</span> <span class="n">LIMITED</span> <span class="n">TO</span><span class="p">,</span> <span class="n">PROCUREMENT</span> <span class="n">OF</span>
+<span class="lineno"> 23</span>  <span class="o">*</span> <span class="n">SUBSTITUTE</span> <span class="n">GOODS</span> <span class="n">OR</span> <span class="n">SERVICES</span><span class="p">;</span> <span class="n">LOSS</span> <span class="n">OF</span> <span class="n">USE</span><span class="p">,</span> <span class="n">DATA</span><span class="p">,</span> <span class="n">OR</span> <span class="n">PROFITS</span><span class="p">;</span> <span class="n">OR</span> 
+<span class="lineno"> 24</span>  <span class="o">*</span> <span class="n">BUSINESS</span> <span class="n">INTERRUPTION</span><span class="p">)</span> <span class="n">HOWEVER</span> <span class="n">CAUSED</span> <span class="n">AND</span> <span class="n">ON</span> <span class="n">ANY</span> <span class="n">THEORY</span> <span class="n">OF</span> <span class="n">LIABILITY</span><span class="p">,</span>
+<span class="lineno"> 25</span>  <span class="o">*</span> <span class="n">WHETHER</span> <span class="n">IN</span> <span class="n">CONTRACT</span><span class="p">,</span> <span class="n">STRICT</span> <span class="n">LIABILITY</span><span class="p">,</span> <span class="n">OR</span> <span class="n">TORT</span> <span class="p">(</span><span class="n">INCLUDING</span> <span class="n">NEGLIGENCE</span>
+<span class="lineno"> 26</span>  <span class="o">*</span> <span class="n">OR</span> <span class="n">OTHERWISE</span><span class="p">)</span> <span class="n">ARISING</span> <span class="n">IN</span> <span class="n">ANY</span> <span class="n">WAY</span> <span class="n">OUT</span> <span class="n">OF</span> <span class="n">THE</span> <span class="n">USE</span> <span class="n">OF</span> <span class="n">THIS</span> <span class="n">SOFTWARE</span><span class="p">,</span>
+<span class="lineno"> 27</span>  <span class="o">*</span> <span class="n">EVEN</span> <span class="n">IF</span> <span class="n">ADVISED</span> <span class="n">OF</span> <span class="n">THE</span> <span class="n">POSSIBILITY</span> <span class="n">OF</span> <span class="n">SUCH</span> <span class="n">DAMAGE</span><span class="o">.</span>
+<span class="lineno"> 28</span>  <span class="o">*</span>
+<span class="lineno"> 29</span>  <span class="o">*</span> <span class="n">The</span> <span class="n">default</span> <span class="n">VCL</span> <span class="n">code</span><span class="o">.</span>
+<span class="lineno"> 30</span>  <span class="o">*</span>
+<span class="lineno"> 31</span>  <span class="o">*</span> <span class="n">NB</span><span class="err">!</span> <span class="n">You</span> <span class="n">do</span> <span class="n">NOT</span> <span class="n">need</span> <span class="n">to</span> <span class="n">copy</span> <span class="o">&amp;</span> <span class="n">paste</span> <span class="nb">all</span> <span class="n">of</span> <span class="n">these</span> <span class="n">functions</span> <span class="n">into</span> <span class="n">your</span>
+<span class="lineno"> 32</span>  <span class="o">*</span> <span class="n">own</span> <span class="n">vcl</span> <span class="n">code</span><span class="p">,</span> <span class="k">if</span> <span class="n">you</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">provide</span> <span class="n">a</span> <span class="n">definition</span> <span class="n">of</span> <span class="n">one</span> <span class="n">of</span> <span class="n">these</span>
+<span class="lineno"> 33</span>  <span class="o">*</span> <span class="n">functions</span><span class="p">,</span> <span class="n">the</span> <span class="n">compiler</span> <span class="n">will</span> <span class="n">automatically</span> <span class="n">fall</span> <span class="n">back</span> <span class="n">to</span> <span class="n">the</span> <span class="n">default</span>
+<span class="lineno"> 34</span>  <span class="o">*</span> <span class="n">code</span> <span class="kn">from</span> <span class="nn">this</span> <span class="nn">file.</span>
+<span class="lineno"> 35</span>  <span class="o">*</span>
+<span class="lineno"> 36</span>  <span class="o">*</span> <span class="n">This</span> <span class="n">code</span> <span class="n">will</span> <span class="n">be</span> <span class="n">prefixed</span> <span class="k">with</span> <span class="n">a</span> <span class="n">backend</span> <span class="n">declaration</span> <span class="n">built</span> <span class="kn">from</span> <span class="nn">the</span>
+<span class="lineno"> 37</span>  <span class="o">*</span> <span class="o">-</span><span class="n">b</span> <span class="n">argument</span><span class="o">.</span>
+<span class="lineno"> 38</span>  <span class="o">*/</span>
+<span class="lineno"> 39</span> 
+<span class="lineno"> 40</span> <span class="n">sub</span> <span class="n">vcl_recv</span> <span class="p">{</span>
+<span class="lineno"> 41</span>     <span class="k">if</span> <span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">restarts</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno"> 42</span>         <span class="k">if</span> <span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="n">forwarded</span><span class="o">-</span><span class="k">for</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno"> 43</span>             <span class="nb">set</span> <span class="n">req</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">X</span><span class="o">-</span><span class="n">Forwarded</span><span class="o">-</span><span class="n">For</span> <span class="o">=</span>
+<span class="lineno"> 44</span>                 <span class="n">req</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">X</span><span class="o">-</span><span class="n">Forwarded</span><span class="o">-</span><span class="n">For</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="n">client</span><span class="o">.</span><span class="n">ip</span><span class="p">;</span>
+<span class="lineno"> 45</span>         <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<span class="lineno"> 46</span>             <span class="nb">set</span> <span class="n">req</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">X</span><span class="o">-</span><span class="n">Forwarded</span><span class="o">-</span><span class="n">For</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">ip</span><span class="p">;</span>
+<span class="lineno"> 47</span>         <span class="p">}</span>
+<span class="lineno"> 48</span>     <span class="p">}</span>
+<span class="lineno"> 49</span>     <span class="k">if</span> <span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;GET&quot;</span> <span class="o">&amp;&amp;</span>
+<span class="lineno"> 50</span>       <span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;HEAD&quot;</span> <span class="o">&amp;&amp;</span>
+<span class="lineno"> 51</span>       <span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;PUT&quot;</span> <span class="o">&amp;&amp;</span>
+<span class="lineno"> 52</span>       <span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;POST&quot;</span> <span class="o">&amp;&amp;</span>
+<span class="lineno"> 53</span>       <span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;TRACE&quot;</span> <span class="o">&amp;&amp;</span>
+<span class="lineno"> 54</span>       <span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;OPTIONS&quot;</span> <span class="o">&amp;&amp;</span>
+<span class="lineno"> 55</span>       <span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;DELETE&quot;</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno"> 56</span>         <span class="o">/*</span> <span class="n">Non</span><span class="o">-</span><span class="n">RFC2616</span> <span class="ow">or</span> <span class="n">CONNECT</span> <span class="n">which</span> <span class="ow">is</span> <span class="n">weird</span><span class="o">.</span> <span class="o">*/</span>
+<span class="lineno"> 57</span>         <span class="k">return</span> <span class="p">(</span><span class="n">pipe</span><span class="p">);</span>
+<span class="lineno"> 58</span>     <span class="p">}</span>
+<span class="lineno"> 59</span>     <span class="k">if</span> <span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;GET&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">req</span><span class="o">.</span><span class="n">request</span> <span class="o">!=</span> <span class="s">&quot;HEAD&quot;</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno"> 60</span>         <span class="o">/*</span> <span class="n">We</span> <span class="n">only</span> <span class="n">deal</span> <span class="k">with</span> <span class="n">GET</span> <span class="ow">and</span> <span class="n">HEAD</span> <span class="n">by</span> <span class="n">default</span> <span class="o">*/</span>
+<span class="lineno"> 61</span>         <span class="k">return</span> <span class="p">(</span><span class="k">pass</span><span class="p">);</span>
+<span class="lineno"> 62</span>     <span class="p">}</span>
+<span class="lineno"> 63</span>     <span class="k">if</span> <span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">Authorization</span> <span class="o">||</span> <span class="n">req</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">Cookie</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno"> 64</span>         <span class="o">/*</span> <span class="n">Not</span> <span class="n">cacheable</span> <span class="n">by</span> <span class="n">default</span> <span class="o">*/</span>
+<span class="lineno"> 65</span>         <span class="k">return</span> <span class="p">(</span><span class="k">pass</span><span class="p">);</span>
+<span class="lineno"> 66</span>     <span class="p">}</span>
+<span class="lineno"> 67</span>     <span class="k">return</span> <span class="p">(</span><span class="n">lookup</span><span class="p">);</span>
+<span class="lineno"> 68</span> <span class="p">}</span>
+<span class="lineno"> 69</span> 
+<span class="lineno"> 70</span> <span class="n">sub</span> <span class="n">vcl_pipe</span> <span class="p">{</span>
+<span class="lineno"> 71</span>     <span class="c"># Note that only the first request to the backend will have</span>
+<span class="lineno"> 72</span>     <span class="c"># X-Forwarded-For set.  If you use X-Forwarded-For and want to</span>
+<span class="lineno"> 73</span>     <span class="c"># have it set for all requests, make sure to have:</span>
+<span class="lineno"> 74</span>     <span class="c"># set bereq.http.connection = &quot;close&quot;;</span>
+<span class="lineno"> 75</span>     <span class="c"># here.  It is not set by default as it might break some broken web</span>
+<span class="lineno"> 76</span>     <span class="c"># applications, like IIS with NTLM authentication.</span>
+<span class="lineno"> 77</span>     <span class="k">return</span> <span class="p">(</span><span class="n">pipe</span><span class="p">);</span>
+<span class="lineno"> 78</span> <span class="p">}</span>
+<span class="lineno"> 79</span> 
+<span class="lineno"> 80</span> <span class="n">sub</span> <span class="n">vcl_pass</span> <span class="p">{</span>
+<span class="lineno"> 81</span>     <span class="k">return</span> <span class="p">(</span><span class="k">pass</span><span class="p">);</span>
+<span class="lineno"> 82</span> <span class="p">}</span>
+<span class="lineno"> 83</span> 
+<span class="lineno"> 84</span> <span class="n">sub</span> <span class="n">vcl_hash</span> <span class="p">{</span>
+<span class="lineno"> 85</span>     <span class="n">hash_data</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">url</span><span class="p">);</span>
+<span class="lineno"> 86</span>     <span class="k">if</span> <span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">host</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno"> 87</span>         <span class="n">hash_data</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">host</span><span class="p">);</span>
+<span class="lineno"> 88</span>     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<span class="lineno"> 89</span>         <span class="n">hash_data</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">ip</span><span class="p">);</span>
+<span class="lineno"> 90</span>     <span class="p">}</span>
+<span class="lineno"> 91</span>     <span class="k">return</span> <span class="p">(</span><span class="nb">hash</span><span class="p">);</span>
+<span class="lineno"> 92</span> <span class="p">}</span>
+<span class="lineno"> 93</span> 
+<span class="lineno"> 94</span> <span class="n">sub</span> <span class="n">vcl_hit</span> <span class="p">{</span>
+<span class="lineno"> 95</span>     <span class="k">return</span> <span class="p">(</span><span class="n">deliver</span><span class="p">);</span>
+<span class="lineno"> 96</span> <span class="p">}</span>
+<span class="lineno"> 97</span> 
+<span class="lineno"> 98</span> <span class="n">sub</span> <span class="n">vcl_miss</span> <span class="p">{</span>
+<span class="lineno"> 99</span>     <span class="k">return</span> <span class="p">(</span><span class="n">fetch</span><span class="p">);</span>
+<span class="lineno">100</span> <span class="p">}</span>
+<span class="lineno">101</span> 
+<span class="lineno">102</span> <span class="n">sub</span> <span class="n">vcl_fetch</span> <span class="p">{</span>
+<span class="lineno">103</span>     <span class="k">if</span> <span class="p">(</span><span class="n">beresp</span><span class="o">.</span><span class="n">ttl</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="n">s</span> <span class="o">||</span>
+<span class="lineno">104</span>         <span class="n">beresp</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">Set</span><span class="o">-</span><span class="n">Cookie</span> <span class="o">||</span>
+<span class="lineno">105</span>         <span class="n">beresp</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">Vary</span> <span class="o">==</span> <span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">106</span>                 <span class="o">/*</span>
+<span class="lineno">107</span>                  <span class="o">*</span> <span class="n">Mark</span> <span class="k">as</span> <span class="s">&quot;Hit-For-Pass&quot;</span> <span class="k">for</span> <span class="n">the</span> <span class="nb">next</span> <span class="mi">2</span> <span class="n">minutes</span>
+<span class="lineno">108</span>                  <span class="o">*/</span>
+<span class="lineno">109</span>                 <span class="nb">set</span> <span class="n">beresp</span><span class="o">.</span><span class="n">ttl</span> <span class="o">=</span> <span class="mi">120</span> <span class="n">s</span><span class="p">;</span>
+<span class="lineno">110</span>                 <span class="k">return</span> <span class="p">(</span><span class="n">hit_for_pass</span><span class="p">);</span>
+<span class="lineno">111</span>     <span class="p">}</span>
+<span class="lineno">112</span>     <span class="k">return</span> <span class="p">(</span><span class="n">deliver</span><span class="p">);</span>
+<span class="lineno">113</span> <span class="p">}</span>
+<span class="lineno">114</span> 
+<span class="lineno">115</span> <span class="n">sub</span> <span class="n">vcl_deliver</span> <span class="p">{</span>
+<span class="lineno">116</span>     <span class="k">return</span> <span class="p">(</span><span class="n">deliver</span><span class="p">);</span>
+<span class="lineno">117</span> <span class="p">}</span>
+<span class="lineno">118</span> 
+<span class="lineno">119</span> <span class="n">sub</span> <span class="n">vcl_error</span> <span class="p">{</span>
+<span class="lineno">120</span>     <span class="nb">set</span> <span class="n">obj</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">Content</span><span class="o">-</span><span class="n">Type</span> <span class="o">=</span> <span class="s">&quot;text/html; charset=utf-8&quot;</span><span class="p">;</span>
+<span class="lineno">121</span>     <span class="nb">set</span> <span class="n">obj</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">Retry</span><span class="o">-</span><span class="n">After</span> <span class="o">=</span> <span class="s">&quot;5&quot;</span><span class="p">;</span>
+<span class="lineno">122</span>     <span class="n">synthetic</span> <span class="p">{</span><span class="s">&quot;</span>
+<span class="lineno">123</span> <span class="o">&lt;</span><span class="err">?</span><span class="n">xml</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;1.0&quot;</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span><span class="err">?</span><span class="o">&gt;</span>
+<span class="lineno">124</span> <span class="o">&lt;</span><span class="err">!</span><span class="n">DOCTYPE</span> <span class="n">html</span> <span class="n">PUBLIC</span> <span class="s">&quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot;</span>
+<span class="lineno">125</span>  <span class="s">&quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;</span><span class="o">&gt;</span>
+<span class="lineno">126</span> <span class="o">&lt;</span><span class="n">html</span><span class="o">&gt;</span>
+<span class="lineno">127</span>   <span class="o">&lt;</span><span class="n">head</span><span class="o">&gt;</span>
+<span class="lineno">128</span>     <span class="o">&lt;</span><span class="n">title</span><span class="o">&gt;</span><span class="s">&quot;} + obj.status + &quot;</span> <span class="s">&quot; + obj.response + {&quot;</span><span class="o">&lt;/</span><span class="n">title</span><span class="o">&gt;</span>
+<span class="lineno">129</span>   <span class="o">&lt;/</span><span class="n">head</span><span class="o">&gt;</span>
+<span class="lineno">130</span>   <span class="o">&lt;</span><span class="n">body</span><span class="o">&gt;</span>
+<span class="lineno">131</span>     <span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">Error</span> <span class="s">&quot;} + obj.status + &quot;</span> <span class="s">&quot; + obj.response + {&quot;</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+<span class="lineno">132</span>     <span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="s">&quot;} + obj.response + {&quot;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="lineno">133</span>     <span class="o">&lt;</span><span class="n">h3</span><span class="o">&gt;</span><span class="n">Guru</span> <span class="n">Meditation</span><span class="p">:</span><span class="o">&lt;/</span><span class="n">h3</span><span class="o">&gt;</span>
+<span class="lineno">134</span>     <span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">XID</span><span class="p">:</span> <span class="s">&quot;} + req.xid + {&quot;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="lineno">135</span>     <span class="o">&lt;</span><span class="n">hr</span><span class="o">&gt;</span>
+<span class="lineno">136</span>     <span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">Varnish</span> <span class="n">cache</span> <span class="n">server</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="lineno">137</span>   <span class="o">&lt;/</span><span class="n">body</span><span class="o">&gt;</span>
+<span class="lineno">138</span> <span class="o">&lt;/</span><span class="n">html</span><span class="o">&gt;</span>
+<span class="lineno">139</span> <span class="s">&quot;};</span>
+<span class="lineno">140</span>     <span class="k">return</span> <span class="p">(</span><span class="n">deliver</span><span class="p">);</span>
+<span class="lineno">141</span> <span class="p">}</span>
+<span class="lineno">142</span> 
+<span class="lineno">143</span> <span class="n">sub</span> <span class="n">vcl_init</span> <span class="p">{</span>
+<span class="lineno">144</span>         <span class="k">return</span> <span class="p">(</span><span class="n">ok</span><span class="p">);</span>
+<span class="lineno">145</span> <span class="p">}</span>
+<span class="lineno">146</span> 
+<span class="lineno">147</span> <span class="n">sub</span> <span class="n">vcl_fini</span> <span class="p">{</span>
+<span class="lineno">148</span>         <span class="k">return</span> <span class="p">(</span><span class="n">ok</span><span class="p">);</span>
+<span class="lineno">149</span> <span class="p">}</span></code></pre></div>
 
 
       <footer class="entry-meta">
@@ -225,11 +480,16 @@
           <a href="http://localhost:4000/unix-programing/" class="read-more-btn">Read More</a>
         </div><!-- /.read-more-header -->
         <div class="read-more-content">
-          <h3><a href="http://localhost:4000/unix-programing/" title="unix网络编程（一）">unix网络编程（一）</a></h3>
-          <p>unix网络编程学习笔记和代码 <a href="http://localhost:4000/unix-programing/">Continue reading</a></p>
+          <h3><a href="http://localhost:4000/websocket-post/" title="tornado websocket">tornado websocket</a></h3>
+          <p>websocket tornado 代码 nginx配置 <a href="http://localhost:4000/websocket-post/">Continue reading</a></p>
         </div><!-- /.read-more-content -->
       
       <div class="read-more-list">
+        
+          <div class="list-item">
+            <h4><a href="http://localhost:4000/unix-programing/" title="unix网络编程（一）">unix网络编程（一）</a></h4>
+            <span>Published on May 11, 2014</span>
+          </div><!-- /.list-item -->
         
           <div class="list-item">
             <h4><a href="http://localhost:4000/sample-post/" title="Sample Post">Sample Post</a></h4>

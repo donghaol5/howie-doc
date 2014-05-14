@@ -1,0 +1,277 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>tornado websocket &#8211; My Technical Documentation</title>
+<meta name="description" content="websocket tornado 代码 nginx配置">
+<meta name="keywords" content="varnish, web">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tornado websocket">
+<meta property="og:description" content="websocket tornado 代码 nginx配置">
+<meta property="og:url" content="http://localhost:4000/websocket-post/">
+<meta property="og:site_name" content="My Technical Documentation">
+
+
+
+
+
+<link rel="canonical" href="http://localhost:4000/websocket-post/">
+<link href="http://localhost:4000/feed.xml" type="application/atom+xml" rel="alternate" title="My Technical Documentation Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://localhost:4000/assets/css/main.css">
+<!-- Webfonts -->
+<link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="http://localhost:4000/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://localhost:4000/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://localhost:4000/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://localhost:4000/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://localhost:4000/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://localhost:4000/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+
+<style type="text/css">body {background-image:url(http://localhost:4000/images/witewall_3.png);}</style>
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="http://localhost:4000">首页</a></li>
+		<li>
+			<a href="#">文档分类</a>
+			<ul class="dl-submenu">
+				<li><a href="http://localhost:4000/posts/">时间</a></li>
+				<li><a href="http://localhost:4000/tags/">标签</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="#">关于作者</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="http://localhost:4000/images/avatar.jpg" alt="董昊 photo" class="author-photo">
+					<h4>董昊</h4>
+					<p></p>
+				</li>
+				<li><a href="http://localhost:4000/about/">Learn More</a></li>
+				<li>
+					<a href="mailto:donghao@youku.com"><i class="icon-envelope"></i> Email</a>
+				</li>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+
+		
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h2 class="entry-title"><a href="http://localhost:4000/websocket-post/" rel="bookmark" title="tornado websocket">tornado websocket</a></h2>
+        
+        <h2>May 14, 2014</h2>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <h3 id="websocket">websocket代码：</h3>
+
+<div class="highlight"><pre><code class="python"><span class="lineno"> 1</span> <span class="k">class</span> <span class="nc">SessionPushSocket</span><span class="p">(</span><span class="n">websocket</span><span class="o">.</span><span class="n">WebSocketHandler</span><span class="p">):</span>
+<span class="lineno"> 2</span>     
+<span class="lineno"> 3</span>     <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="lineno"> 4</span>         <span class="c">#timeout ten mins</span>
+<span class="lineno"> 5</span>         <span class="bp">self</span><span class="o">.</span><span class="n">time_out</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">60</span>
+<span class="lineno"> 6</span>         <span class="bp">self</span><span class="o">.</span><span class="n">time_wait</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="lineno"> 7</span>         <span class="bp">self</span><span class="o">.</span><span class="n">loop_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_out</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_wait</span>
+<span class="lineno"> 8</span>         <span class="bp">self</span><span class="o">.</span><span class="n">loop_index</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="lineno"> 9</span>         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;WebSocket opened:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">m</span><span class="p">)</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span> 
+<span class="lineno">12</span>     <span class="k">def</span> <span class="nf">on_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="lineno">13</span>         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">u&quot;You said: &quot;</span> <span class="o">+</span> <span class="n">message</span><span class="p">)</span>
+<span class="lineno">14</span>         <span class="bp">self</span><span class="o">.</span><span class="n">register_loop</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="lineno">15</span>  
+<span class="lineno">16</span> 
+<span class="lineno">17</span>     <span class="k">def</span> <span class="nf">register_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
+<span class="lineno">18</span>         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_index</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_limit</span><span class="p">:</span>
+<span class="lineno">19</span>             <span class="bp">self</span><span class="o">.</span><span class="n">loop_index</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="lineno">20</span>             <span class="n">ioloop</span><span class="o">.</span><span class="n">IOLoop</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">add_timeout</span><span class="p">(</span>
+<span class="lineno">21</span>                 <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_wait</span><span class="p">,</span>
+<span class="lineno">22</span>                 <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">guid</span><span class="o">=</span><span class="n">guid</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="p">)</span>
+<span class="lineno">23</span>             <span class="p">)</span>
+<span class="lineno">24</span>         <span class="k">else</span><span class="p">:</span>
+<span class="lineno">25</span>             <span class="c">#release time out connection</span>
+<span class="lineno">26</span>             <span class="k">try</span><span class="p">:</span>
+<span class="lineno">27</span>                 <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="lineno">28</span>             <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+<span class="lineno">29</span>                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="lineno">30</span> 
+<span class="lineno">31</span> 
+<span class="lineno">32</span>     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+<span class="lineno">33</span>         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws_connection</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws_connection</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">closed</span><span class="p">():</span>
+<span class="lineno">34</span>             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">:close&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
+<span class="lineno">35</span>             <span class="k">return</span>
+<span class="lineno">36</span> 
+<span class="lineno">37</span>         <span class="c">#get data from store</span>
+<span class="lineno">38</span>         <span class="n">data</span> <span class="o">=</span> <span class="n">get_from_store</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="lineno">39</span>         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;data:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">phone</span><span class="p">)</span>
+<span class="lineno">40</span>         <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+<span class="lineno">41</span>             <span class="n">callback</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="lineno">42</span>         <span class="k">else</span><span class="p">:</span>
+<span class="lineno">43</span>             <span class="c">#next loop</span>
+<span class="lineno">44</span>             <span class="bp">self</span><span class="o">.</span><span class="n">register_loop</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
+<span class="lineno">45</span> 
+<span class="lineno">46</span>     <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="lineno">47</span>         <span class="bp">self</span><span class="o">.</span><span class="n">write_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="lineno">48</span> 
+<span class="lineno">49</span>     <span class="k">def</span> <span class="nf">on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="lineno">50</span>         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;WebSocket closed&quot;</span><span class="p">)</span></code></pre></div>
+
+<h3 id="nginx">nginx配置</h3>
+
+<p>nginx 需要新版本 1.4 以上</p>
+
+<div class="highlight"><pre><code class="python"><span class="lineno"> 1</span> <span class="n">http</span> <span class="p">{</span>
+<span class="lineno"> 2</span>     <span class="o">...</span>
+<span class="lineno"> 3</span>     <span class="nb">map</span> <span class="err">$</span><span class="n">http_upgrade</span> <span class="err">$</span><span class="n">connection_upgrade</span> <span class="p">{</span>
+<span class="lineno"> 4</span>         <span class="n">default</span> <span class="n">upgrade</span><span class="p">;</span>
+<span class="lineno"> 5</span>         <span class="s">&#39;&#39;</span>      <span class="n">close</span><span class="p">;</span>
+<span class="lineno"> 6</span>     <span class="p">}</span>
+<span class="lineno"> 7</span> 
+<span class="lineno"> 8</span>     <span class="n">server</span> <span class="p">{</span>
+<span class="lineno"> 9</span>         <span class="o">...</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span>         <span class="n">location</span> <span class="o">/</span><span class="n">chat</span><span class="o">/</span> <span class="p">{</span>
+<span class="lineno">12</span>             <span class="n">proxy_pass</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">backend</span><span class="p">;</span>
+<span class="lineno">13</span>             <span class="n">proxy_http_version</span> <span class="mf">1.1</span><span class="p">;</span>
+<span class="lineno">14</span>             <span class="n">proxy_set_header</span> <span class="n">Upgrade</span> <span class="err">$</span><span class="n">http_upgrade</span><span class="p">;</span>
+<span class="lineno">15</span>             <span class="n">proxy_set_header</span> <span class="n">Connection</span> <span class="err">$</span><span class="n">connection_upgrade</span><span class="p">;</span>
+<span class="lineno">16</span>         <span class="p">}</span>
+<span class="lineno">17</span>     <span class="p">}</span>
+<span class="lineno">18</span> <span class="p">}</span></code></pre></div>
+
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="http://localhost:4000/tags/#varnish" title="Pages tagged varnish" class="tag">varnish</a><a href="http://localhost:4000/tags/#web" title="Pages tagged web" class="tag">web</a></span>
+        <span><a href="http://localhost:4000/websocket-post/" rel="bookmark" title="tornado websocket">tornado websocket</a> was published on <span class="entry-date date published updated"><time datetime="2014-05-14T00:00:00+08:00">May 14, 2014</time></span></span>
+        (revised: <span class="entry-date date modified"><time datetime="2014-05-11">05/11/2014</time></span>)
+        <span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About 董昊">董昊</a></span></span>
+        <div class="social-share">
+          <ul class="socialcount socialcount-small inline-list">
+            <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:4000/websocket-post/" title="Share on Facebook"><span class="count"><i class="icon-facebook-sign"></i> Like</span></a></li>
+            <li class="twitter"><a href="https://twitter.com/intent/tweet?text=http://localhost:4000/websocket-post/" title="Share on Twitter"><span class="count"><i class="icon-twitter-sign"></i> Tweet</span></a></li>
+            <li class="googleplus"><a href="https://plus.google.com/share?url=http://localhost:4000/websocket-post/" title="Share on Google Plus"><span class="count"><i class="icon-google-plus-sign"></i> +1</span></a></li>
+          </ul>
+        </div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    
+    <div class="read-more">
+      
+        <div class="read-more-header">
+          <a href="http://localhost:4000/varnish-post/" class="read-more-btn">Read More</a>
+        </div><!-- /.read-more-header -->
+        <div class="read-more-content">
+          <h3><a href="http://localhost:4000/varnish-post/" title="varnish">varnish</a></h3>
+          <p>varnish 学习记录 <a href="http://localhost:4000/varnish-post/">Continue reading</a></p>
+        </div><!-- /.read-more-content -->
+      
+      <div class="read-more-list">
+        
+          <div class="list-item">
+            <h4><a href="http://localhost:4000/unix-programing/" title="unix网络编程（一）">unix网络编程（一）</a></h4>
+            <span>Published on May 11, 2014</span>
+          </div><!-- /.list-item -->
+        
+          <div class="list-item">
+            <h4><a href="http://localhost:4000/sample-post/" title="Sample Post">Sample Post</a></h4>
+            <span>Published on May 10, 2014</span>
+          </div><!-- /.list-item -->
+        
+      </div><!-- /.read-more-list -->
+      
+    </div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2014 董昊. Powered by <a href="http://jekyllrb.com">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://localhost:4000/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://localhost:4000/assets/js/scripts.min.js"></script>
+
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = ''; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>	        
+
+</body>
+</html>
