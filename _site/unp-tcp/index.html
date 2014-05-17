@@ -120,9 +120,7 @@
       </div><!-- /.header-title-wrap -->
     </header>
     <div class="entry-content">
-      <p>tcp／ip 协议族包括：tcp udp icmp arp 等等。主要介绍 tcp udp</p>
-
-<h2 id="udp-">UDP 用户数据报协议：</h2>
+      <h2 id="udp-">UDP 用户数据报协议：</h2>
 
 <blockquote>
   <p>UDP 是一个简单的传输协议，在RFC768 中详细介绍。UDP不保证数据报会到达目的地，不保证各个数据报到达的先后顺序，也不保证每个数据报只到达一次，如果丢失不会自动重传，所以UDP是一个不可靠的传输协议。 每个UDP数据报都有一个长度，如果一个数据报能正确到达目的地，那么长度也会被传递到接收应用端.</p>
@@ -198,6 +196,7 @@ RTT（往返时间）算法 ： 动态估算客户端与服务端数据往返时
     <p>主动关闭端接收到最终FIN后，发送确认（ACK）这个FIN</p>
   </li>
 </ol>
+
 <figure>
 	<img src="/images/four_way_handshake.jpg" alt="" />
 </figure>

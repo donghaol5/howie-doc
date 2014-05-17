@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml" />
 <link rel="alternate" type="text/html" href="http://localhost:4000" />
-<updated>2014-05-16T20:13:57+08:00</updated>
+<updated>2014-05-17T20:25:14+08:00</updated>
 <id>http://localhost:4000/</id>
 <author>
   <name>董昊</name>
@@ -25,9 +25,7 @@
     <uri>http://localhost:4000</uri>
     <email>donghao@youku.com</email>
   </author>
-  <content type="html">&lt;p&gt;tcp／ip 协议族包括：tcp udp icmp arp 等等。主要介绍 tcp udp&lt;/p&gt;
-
-&lt;h2 id=&quot;udp-&quot;&gt;UDP 用户数据报协议：&lt;/h2&gt;
+  <content type="html">&lt;h2 id=&quot;udp-&quot;&gt;UDP 用户数据报协议：&lt;/h2&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;UDP 是一个简单的传输协议，在RFC768 中详细介绍。UDP不保证数据报会到达目的地，不保证各个数据报到达的先后顺序，也不保证每个数据报只到达一次，如果丢失不会自动重传，所以UDP是一个不可靠的传输协议。 每个UDP数据报都有一个长度，如果一个数据报能正确到达目的地，那么长度也会被传递到接收应用端.&lt;/p&gt;
@@ -103,6 +101,7 @@ RTT（往返时间）算法 ： 动态估算客户端与服务端数据往返时
     &lt;p&gt;主动关闭端接收到最终FIN后，发送确认（ACK）这个FIN&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
+
 &lt;figure&gt;
 	&lt;img src=&quot;/images/four_way_handshake.jpg&quot; alt=&quot;&quot; /&gt;
 &lt;/figure&gt;
