@@ -9,6 +9,6 @@ share: true
 ---
 
 <figure>
-	<img src="/images/varnish_overview.jpg" alt="">
+	<img src="{{site.url}}/images/varnish_overview.jpg" alt="">
 	<!-- <figcaption>Caption describing these two images.</figcaption> -->
 </figure>
